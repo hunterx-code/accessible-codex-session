@@ -1,0 +1,4 @@
+interface:
+  display_name: "Accessible Codex Session"
+  short_description: "Make Codex sessions assistive-tech friendly"
+  default_prompt: "Use $accessible-codex-session to run this Codex task with screen-reader-friendly, keyboard-friendly, low-noise session behavior."

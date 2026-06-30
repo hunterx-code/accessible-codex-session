@@ -1,0 +1,13 @@
+Running tests...
+|
+/
+-
+Loading...
+50%
+50%
+tests/test_example.py::test_ok PASSED
+tests/test_example.py::test_failure FAILED
+AssertionError: expected filtered output to preserve errors
+AssertionError: expected filtered output to preserve errors
+AssertionError: expected filtered output to preserve errors
+Done
