@@ -3,6 +3,9 @@
 An Agent Skill that helps Codex communicate in a screen-reader-friendly,
 keyboard/voice-friendly, low-noise session style.
 
+This is an unofficial community package. It is not an OpenAI product and is not
+affiliated with or endorsed by OpenAI.
+
 This is not a WCAG audit suite, compliance checker, medical accommodation
 assessment, or native Codex accessibility patch. It is a practical session
 behavior aid: it helps the agent structure responses, summarize noisy terminal
@@ -57,6 +60,7 @@ Example:
 
 ```bash
 mkdir -p ~/.codex/skills
+rm -rf ~/.codex/skills/accessible-codex-session
 cp -R skill ~/.codex/skills/accessible-codex-session
 ```
 
@@ -72,7 +76,7 @@ keyboard-friendly, low-noise session behavior.
 From the repository root:
 
 ```bash
-python3 -m unittest discover -s skill/scripts -p 'test_*.py'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skill/scripts -p 'test_*.py'
 python3 skill/scripts/sr_text_filter.py skill/scripts/noisy_terminal_sample.txt
 ```
 

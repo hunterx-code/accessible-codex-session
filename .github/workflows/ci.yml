@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Run unit tests
+        run: PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s skill/scripts -p 'test_*.py'
+
+      - name: Check Python syntax
+        run: python3 -m py_compile skill/scripts/sr_text_filter.py skill/scripts/test_sr_text_filter.py
+
+      - name: Check skill metadata
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          path = Path("skill/SKILL.md")
+          text = path.read_text(encoding="utf-8")
+          if not text.startswith("---\n"):
+              sys.exit("SKILL.md must start with YAML frontmatter")
+          try:
+              _, frontmatter, _ = text.split("---", 2)
+          except ValueError:
+              sys.exit("SKILL.md frontmatter is not closed")
+          required = {
+              "name": "accessible-codex-session",
+              "description": None,
+          }
+          fields = {}
+          for line in frontmatter.strip().splitlines():
+              if ":" in line:
+                  key, value = line.split(":", 1)
+                  fields[key.strip()] = value.strip()
+          for key, expected in required.items():
+              if key not in fields:
+                  sys.exit(f"Missing frontmatter field: {key}")
+              if expected is not None and fields[key] != expected:
+                  sys.exit(f"Unexpected {key}: {fields[key]}")
+          if len(fields.get("description", "")) < 80:
+              sys.exit("Description is too short for reliable triggering")
+          if not re.fullmatch(r"[a-z0-9-]+", fields["name"]):
+              sys.exit("Skill name must be lowercase hyphen-case")
+          PY
+
+      - name: Check ASCII package text
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+
+          checked = []
+          for path in Path(".").rglob("*"):
+              if path.is_file() and ".git" not in path.parts:
+                  data = path.read_bytes()
+                  if any(byte > 127 for byte in data):
+                      sys.exit(f"Non-ASCII byte found in {path}")
+                  checked.append(str(path))
+          print(f"Checked {len(checked)} files")
+          PY
